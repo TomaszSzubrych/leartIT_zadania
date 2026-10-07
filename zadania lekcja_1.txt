@@ -1,0 +1,375 @@
+ZADANIE 9 – SYSTEM REKOMENDACJI FILMÓW
+
+1. Określenie problemu
+
+Jest to przede wszystkim problem rekomendacji i rankingu, a nie klasycznej klasyfikacji. Zadaniem systemu jest wybranie filmów, które mogą najbardziej zainteresować danego użytkownika, a następnie ustawienie ich w odpowiedniej kolejności.
+
+Można jednak wykorzystać klasyfikację jako jeden z elementów systemu, np. do przewidywania prawdopodobieństwa obejrzenia filmu przez użytkownika.
+
+2. Dane wejściowe
+
+System powinien wykorzystywać między innymi:
+
+- identyfikator użytkownika,
+- informacje o filmach,
+- historię oglądania,
+- oceny filmów,
+- kliknięcia,
+- czas oglądania,
+- informacje o gatunku filmu,
+- informacje o aktorach, reżyserach lub innych cechach filmu.
+
+3. Proponowane rozwiązanie
+
+System można podzielić na trzy główne etapy.
+
+Pierwszym etapem jest generowanie kandydatów. System wybiera z dużej liczby filmów mniejszy zbiór pozycji, które mogą zainteresować użytkownika. Można tutaj zastosować filtrowanie kolaboracyjne, podejście oparte na cechach filmu albo modele wykorzystujące embeddingi użytkowników i filmów.
+
+Drugim etapem jest ranking. Kandydaci są oceniani przez model, który przewiduje, jak bardzo dany film może zainteresować konkretnego użytkownika. Można wykorzystać modele learning-to-rank, zarówno podejścia pairwise, jak i listwise.
+
+Trzecim etapem jest re-ranking. Wyniki można dodatkowo zmodyfikować, aby zwiększyć różnorodność rekomendacji, uwzględnić świeżość treści, ograniczyć powtarzanie tych samych filmów oraz uwzględnić inne wymagania biznesowe.
+
+Schemat:
+
+Dane użytkownika + dane filmów
+        ↓
+Generowanie kandydatów
+        ↓
+Ranking / scoring
+        ↓
+Re-ranking
+        ↓
+Lista rekomendowanych filmów
+
+
+4. Ocena jakości systemu
+
+Podstawową metryką offline może być NDCG@K. Jest to odpowiednia metryka, ponieważ uwzględnia nie tylko to, czy właściwe filmy znalazły się w rekomendowanej części listy, ale również ich pozycję.
+
+Można dodatkowo wykorzystać Recall@K i Precision@K.
+
+Po wdrożeniu systemu należy analizować również metryki online, takie jak CTR, czas oglądania filmu, współczynnik ukończenia filmu oraz współczynnik rezygnacji.
+
+CTR i czas oglądania powinny być traktowane przede wszystkim jako metryki zachowania użytkownika po wdrożeniu systemu, a nie jako zamiennik offline'owej oceny jakości rankingu.
+
+
+5. Green AI
+
+Aby ograniczyć zużycie energii, można zastosować mniejszy model, distillation, kwantyzację oraz pruning.
+
+Dobrym rozwiązaniem jest również przechowywanie i ponowne wykorzystywanie wcześniej obliczonych embeddingów i rekomendacji. Nie wszystkie elementy systemu muszą być przeliczane od początku przy każdym zapytaniu.
+
+Można także wykorzystać wyszukiwanie Approximate Nearest Neighbors zamiast dokładnego przeszukiwania całego zbioru filmów.
+
+Trening powinien być wykonywany wtedy, kiedy jest rzeczywiście potrzebny, np. po wykryciu istotnej zmiany zachowania użytkowników. Warto również mierzyć zużycie energii przypadające na określoną liczbę zapytań, np. 1000 rekomendacji.
+
+
+ZADANIE 10 – ACCURACY VS ENERGY
+
+Dane:
+
+Model 1 – Logistic Regression:
+Accuracy = 75%
+Energy = 0,5 Wh
+
+Model 2 – Random Forest:
+Accuracy = 85%
+Energy = 5 Wh
+
+Model 3 – ResNet50:
+Accuracy = 92%
+Energy = 500 Wh
+
+Model 4 – EfficientNet:
+Accuracy = 90%
+Energy = 50 Wh
+
+
+1. Efficiency Ratio
+
+Wzór:
+
+Efficiency Ratio = accuracy / energy
+
+
+Logistic Regression:
+
+0,75 / 0,5 = 1,5
+
+
+Random Forest:
+
+0,85 / 5 = 0,17
+
+
+ResNet50:
+
+0,92 / 500 = 0,00184
+
+
+EfficientNet:
+
+0,90 / 50 = 0,018
+
+
+Najwyższy Efficiency Ratio ma Logistic Regression.
+
+
+2. Analiza trade-off
+
+Wraz ze wzrostem accuracy rośnie również zużycie energii.
+
+Logistic Regression osiąga najniższą dokładność, ale jednocześnie zużywa zdecydowanie najmniej energii.
+
+Random Forest zwiększa dokładność do 85%, ale wymaga już 5 Wh.
+
+EfficientNet osiąga 90% accuracy przy zużyciu 50 Wh.
+
+ResNet50 osiąga najwyższą dokładność – 92% – ale wymaga aż 500 Wh.
+
+
+3. Pareto frontier
+
+Ważna poprawka: wszystkie cztery modele znajdują się na prostej granicy Pareto.
+
+Żaden z modeli nie jest jednocześnie gorszy od innego modelu pod względem obu analizowanych parametrów.
+
+Logistic Regression ma najmniejsze zużycie energii, ale również najniższą accuracy.
+
+Random Forest daje wyższą accuracy kosztem większego zużycia energii.
+
+EfficientNet daje jeszcze wyższą accuracy, ale wymaga większej ilości energii.
+
+ResNet50 ma najwyższą accuracy, ale również zdecydowanie najwyższe zużycie energii.
+
+Oznacza to, że wybór modelu zależy od tego, jaką wagę przypisujemy dokładności i zużyciu energii.
+
+
+4. Model dla urządzenia mobilnego
+
+W przypadku urządzenia mobilnego nie należy wybierać modelu wyłącznie na podstawie Efficiency Ratio.
+
+Jeżeli jest to zadanie związane z klasyfikacją obrazów, spośród podanych modeli rozsądnym kompromisem będzie EfficientNet. Oferuje 90% accuracy przy znacznie mniejszym zużyciu energii niż ResNet50.
+
+Jeżeli dokładność na poziomie 75% byłaby wystarczająca, Logistic Regression byłaby znacznie bardziej energooszczędna.
+
+Ostateczny wybór powinien jednak uwzględniać również rzeczywisty czas odpowiedzi, wielkość modelu, wykorzystanie pamięci oraz zużycie baterii na konkretnym urządzeniu.
+
+
+5. Model dla systemu bezpieczeństwa elektrowni jądrowej
+
+Spośród podanych modeli można wskazać ResNet50, ponieważ osiąga najwyższą accuracy – 92%.
+
+Nie oznacza to jednak, że można automatycznie uznać go za najlepszy model do zastosowania w elektrowni jądrowej.
+
+W systemie bezpieczeństwa sama accuracy nie wystarcza. Należy analizować między innymi false negatives, false positives, czułość, specyficzność, kalibrację, odporność modelu oraz zachowanie systemu w sytuacjach nietypowych.
+
+W systemie krytycznym konieczna jest również odpowiednia walidacja, mechanizmy fail-safe oraz możliwość nadzoru człowieka.
+
+
+ZADANIE 11 – SYSTEM WYKRYWANIA OSZUSTW
+
+Dane:
+
+10 000 000 transakcji dziennie
+
+0,1% transakcji to oszustwa.
+
+
+1. Liczba oszustw
+
+10 000 000 × 0,001 = 10 000
+
+Oznacza to, że system musi wykrywać około 10 000 potencjalnie oszukańczych transakcji dziennie.
+
+
+2. Rodzaj problemu
+
+Podstawowym rozwiązaniem powinien być nadzorowany model klasyfikacji binarnej.
+
+Model otrzymuje informacje o transakcji i przewiduje, czy jest ona prawdopodobnie prawidłowa, czy oszukańcza.
+
+Można również zastosować anomaly detection jako dodatkową warstwę systemu. Jest to szczególnie przydatne do wykrywania nowych rodzajów oszustw, których wcześniej nie było w danych treningowych.
+
+
+3. Największy problem – niezbalansowane dane
+
+Zbiór danych jest bardzo niezbalansowany.
+
+Tylko 0,1% transakcji stanowią oszustwa.
+
+Model, który zawsze przewidywałby "brak oszustwa", uzyskałby około 99,9% accuracy, ale byłby praktycznie bezużyteczny.
+
+Dlatego accuracy nie powinna być główną metryką oceny tego systemu.
+
+
+4. Najważniejsze metryki
+
+Należy analizować przede wszystkim:
+
+- precision,
+- recall,
+- PR-AUC,
+- F1-score,
+- liczbę false positives,
+- liczbę false negatives,
+- koszt finansowy błędnych decyzji,
+- czas odpowiedzi systemu.
+
+W tym przypadku szczególnie istotna jest PR-AUC, ponieważ problem jest silnie niezbalansowany.
+
+W zależności od kosztu błędów można również odpowiednio ustawić próg decyzyjny modelu.
+
+
+5. Architektura systemu
+
+Przykładowy system może działać w kilku etapach.
+
+Najpierw wykonywane są tanie reguły i proste kontrole.
+
+Następnie transakcje, które wzbudzają podejrzenia, trafiają do lekkiego modelu machine learning.
+
+Najbardziej podejrzane transakcje mogą zostać przekazane do bardziej złożonego modelu.
+
+W przypadku niskiej pewności decyzja może zostać skierowana do dodatkowej weryfikacji.
+
+Dzięki temu nie trzeba uruchamiać najbardziej kosztownego modelu dla wszystkich 10 milionów transakcji.
+
+
+6. Green AI
+
+Zużycie energii można ograniczyć poprzez zastosowanie lekkich modeli na pierwszym etapie analizy.
+
+Droższy obliczeniowo model powinien być uruchamiany tylko dla transakcji, które tego wymagają.
+
+Można również stosować kwantyzację i kompresję modeli oraz wcześniej obliczać cechy, które nie zmieniają się często.
+
+Należy mierzyć między innymi energię zużywaną na milion przeanalizowanych transakcji.
+
+Nie ma również potrzeby wykonywania pełnego treningu każdego dnia. Model powinien być aktualizowany wtedy, kiedy dane wskazują na zmianę zachowania użytkowników lub pojawienie się nowych typów oszustw.
+
+
+7. Walidacja
+
+W przypadku wykrywania oszustw należy zwrócić szczególną uwagę na data leakage.
+
+Dane treningowe i testowe powinny być podzielone zgodnie z czasem, ponieważ model używany produkcyjnie będzie przewidywał przyszłe transakcje na podstawie danych z przeszłości.
+
+Dobrym rozwiązaniem jest więc walidacja temporalna.
+
+Należy również monitorować concept drift, ponieważ sposoby dokonywania oszustw mogą się zmieniać.
+
+
+ZADANIE 12 – MODERACJA KOMENTARZY
+
+1. Podejście oparte na regułach
+
+Pierwszym rozwiązaniem może być system wykorzystujący ręcznie zdefiniowane reguły.
+
+Przykładowy proces:
+
+Normalizacja tekstu
+        ↓
+Sprawdzenie słów i fraz
+        ↓
+Sprawdzenie reguł kontekstowych
+        ↓
+Decyzja
+        ↓
+Akceptacja / blokada / przekazanie do moderatora
+
+
+System może wykorzystywać listę zakazanych słów, fraz oraz określone wzorce.
+
+Zaletą takiego rozwiązania jest prostota, niskie zużycie energii oraz łatwość wyjaśnienia decyzji.
+
+Problemem jest jednak słaba odporność na nowe sposoby omijania filtrów oraz trudność w rozpoznawaniu kontekstu, ironii i bardziej złożonych wypowiedzi.
+
+
+2. Podejście wykorzystujące machine learning
+
+Drugim rozwiązaniem jest model uczony na wcześniej oznaczonych komentarzach.
+
+Przykładowy proces:
+
+Oznaczone komentarze
+        ↓
+Przetwarzanie tekstu
+        ↓
+Reprezentacja tekstu
+        ↓
+Model klasyfikacyjny
+        ↓
+Prawdopodobieństwo naruszenia zasad
+        ↓
+Decyzja
+
+
+Model może przewidywać prawdopodobieństwo, że komentarz jest szkodliwy lub łamie określone zasady.
+
+Zaletą jest możliwość nauczenia się bardziej złożonych zależności i lepsze radzenie sobie z przypadkami, których nie da się łatwo opisać pojedynczą regułą.
+
+Minusem jest konieczność posiadania odpowiednio oznaczonych danych, trenowania i monitorowania modelu.
+
+Bardziej rozbudowane modele językowe mogą również wymagać znacznie większych zasobów obliczeniowych.
+
+
+3. Porównanie obu podejść
+
+Podejście regułowe jest prostsze, tańsze obliczeniowo i łatwiejsze do wyjaśnienia.
+
+Jego największą wadą jest mała elastyczność. Reguły mogą szybko przestać działać, gdy użytkownicy zaczną celowo zmieniać sposób zapisywania obraźliwych słów albo używać ironii i kontekstu.
+
+Machine learning może lepiej generalizować na podstawie przykładów i rozpoznawać bardziej skomplikowane zależności.
+
+Jednocześnie wymaga większej ilości danych, większej infrastruktury oraz regularnego monitorowania jakości.
+
+W przypadku modelu ML trzeba również uważać na błędne usuwanie prawidłowych komentarzy.
+
+
+4. Najlepsze rozwiązanie – system hybrydowy
+
+Najbardziej praktycznym rozwiązaniem byłoby połączenie obu metod.
+
+Reguły mogą obsługiwać oczywiste przypadki, które można szybko i tanio wykryć.
+
+Model machine learning może analizować bardziej niejednoznaczne komentarze.
+
+Komentarze, dla których model ma niską pewność, mogą być przekazywane do moderatora.
+
+Przykładowy schemat:
+
+Komentarz
+        ↓
+Normalizacja
+        ↓
+Reguły
+        ↓
+Czy przypadek jest oczywisty?
+     /             \
+   TAK              NIE
+    ↓                ↓
+Decyzja          Model ML
+                     ↓
+              Poziom pewności
+                /        \
+          wysoki          niski
+             ↓              ↓
+          Decyzja       Moderator
+
+
+5. Green AI
+
+W systemie moderacji warto ograniczyć używanie najbardziej kosztownych modeli do przypadków, które rzeczywiście tego wymagają.
+
+Proste reguły mogą obsługiwać dużą część komentarzy przy bardzo małym koszcie obliczeniowym.
+
+Dopiero komentarze trudniejsze powinny trafiać do modelu ML.
+
+Można również zastosować mniejszy model, kwantyzację oraz odpowiednią optymalizację infrastruktury.
+
+Takie rozwiązanie pozwala jednocześnie ograniczyć zużycie energii i zachować dobrą jakość moderacji.
+
+
+
+
