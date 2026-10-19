@@ -1,0 +1,25 @@
+
+jezyki = ['Python', 'R', 'SQL', 'Python', 'Julia', 'R', 'Python', 'Scala', 'SQL']
+
+# 1. Utworzenie zbioru unikalnych języków
+unikalne = set(jezyki)
+print("Unikalne języki:", unikalne)
+
+# 2. Liczba unikalnych języków
+print("Liczba unikalnych języków:", len(unikalne))
+
+# 3. Dodanie nowych języków
+unikalne.update(['Go', 'Rust'])
+print("Po dodaniu:", unikalne)
+
+# 4. Sprawdzenie obecności elementów
+print("Python:", 'Python' in unikalne)
+print("Fortran:", 'Fortran' in unikalne)
+print("Julia:", 'Julia' in unikalne)
+
+# 5. Bezpieczne usunięcie elementu
+unikalne.discard('Scala')
+
+# 6. Wynik końcowy
+print("Finalny zbiór:", unikalne)
+print("Długość finalnego zbioru:", len(unikalne))
